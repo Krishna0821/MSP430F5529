@@ -1,0 +1,24 @@
+#include <msp430.h> 
+
+int main(void)
+{
+	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+	P1DIR = 0x01;
+	P1OUT &= ~0x01;
+
+	P2REN |= 0x02;
+	P2OUT |= 0x02;
+	P2IES |= 0x02;  //Falling edge interrupt
+	P2IFG &= ~0x02; //Clear interrupt flag
+	P2IE |= 0x02;   //Enable Interrupt
+	
+	__bis_SR_register(LPM4_bits + GIE);
+	__no_operation();
+}
+
+#pragma vector=PORT2_VECTOR
+__interrupt void Port_2 (void)
+{
+    P1OUT ^= BIT0;
+    P2IFG &= ~BIT1;
+}
