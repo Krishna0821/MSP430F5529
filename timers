@@ -1,0 +1,18 @@
+#include<msp430f5529.h>
+main(){
+    WDTCTL = WDTPW | WDTHOLD;
+    P1DIR |= BIT0;   // configure port1 as output
+    P1OUT &= ~BIT0;  // clear bits
+    TA0CCR0 = 6000;   // set value on CCR0
+    TA0CCTL0 |= CCIE;
+// enable the capture compare interrupt enable using capture //compare control register.
+    TA0CTL |= TAIE + MC_1 + TACLR + TASSEL_1;
+// timer_A int enable+mode of operation+clear timer_A+select //clock source
+    while(1){
+        _BIS_SR(GIE + LPM0_bits); //set the binary input set //status register
+    }}
+#pragma vector = TIMER0_A0_VECTOR
+__interrupt void delay (void){
+   P1OUT ^= BIT0;
+   TA0CTL |= TACLR;
+}
