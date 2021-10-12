@@ -1,0 +1,35 @@
+#include<msp430f5529.h>
+int i = 0;
+main()
+{
+    WDTCTL = WDTPW | WDTHOLD;
+
+    P1SEL |= BIT3;
+    P1DIR |= BIT3;
+    P1DIR |= BIT0;
+   // P4DIR |= BIT7;
+    P1OUT |= BIT3;
+
+    TA0CCR0 =100;
+    TA0CCR2 = 0;
+    TA0CCTL2 |= CCIE + OUTMOD_7;
+    TA0CTL |= TAIE + MC_1 + TACLR + TASSEL_2;
+    TA0CTL &= ~TAIFG;
+
+    while(1)
+    {
+        _BIS_SR(GIE + LPM0_bits);
+    }
+}
+
+#pragma vector = TIMER0_A1_VECTOR
+__interrupt void delay (void)
+{
+    if(i == 100)
+        i = 0;
+    else
+        i = i+ 1;
+    TA0CCR2 = i;
+    TA0CTL |= TACLR;
+    __delay_cycles(100000);
+}
